@@ -1,5 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.facebook_auth_example">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
    <application
         android:label="facebook_auth_example"
         android:name="${applicationName}"
