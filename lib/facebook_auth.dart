@@ -7,13 +7,13 @@ class FacebookAuth {
   static final _instance = FacebookAuth._internal();
   factory FacebookAuth() => _instance;
 
-  Future<String> signIn(String clientId) async {
-    return await methodChannel.invokeMethod('signIn', {
-      'clientId': clientId,
+  Future<dynamic> login(List<String> permissions) async {
+    return await methodChannel.invokeMethod('login', {
+      'permissions': permissions,
     });
   }
 
-  Future<void> signOut() async {
-    await methodChannel.invokeMethod('signOut');
+  Future<void> logout() async {
+    await methodChannel.invokeMethod('logout');
   }
 }

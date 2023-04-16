@@ -1,35 +1,72 @@
 package me.transang.plugins.facebook_auth
 
-import androidx.annotation.NonNull
-
+import android.content.Intent
+import com.facebook.CallbackManager
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.plugin.common.MethodCall
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.flutter.plugin.common.MethodChannel.Result
+import io.flutter.plugin.common.PluginRegistry
 
-/** FacebookAuthPlugin */
-class FacebookAuthPlugin: FlutterPlugin, MethodCallHandler {
-  /// The MethodChannel that will the communication between Flutter and native Android
-  ///
-  /// This local reference serves to register the plugin with the Flutter Engine and unregister it
-  /// when the Flutter Engine is detached from the Activity
-  private lateinit var channel : MethodChannel
+class FacebookAuthPlugin : FlutterPlugin, ActivityAware {
+	private var detachFromEngine: (() -> Unit)? = null
+	private var detachFromActivity: (() -> Unit)? = null
+	private var flutterPluginBinding: FlutterPlugin.FlutterPluginBinding? = null
 
-  override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "me.transang.plugins.facebook_auth/channel")
-    channel.setMethodCallHandler(this)
-  }
+	// BEGIN attach to engine
+	override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+		flutterPluginBinding = binding
+		detachFromEngine = {
+			detachFromEngine = null
+			flutterPluginBinding = null
+		}
+	}
 
-  override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-    if (call.method == "getPlatformVersion") {
-      result.success("Android ${android.os.Build.VERSION.RELEASE}")
-    } else {
-      result.notImplemented()
-    }
-  }
+	override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+		detachFromEngine?.invoke()
+	}
+	// END attach to engine
 
-  override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-    channel.setMethodCallHandler(null)
-  }
+	// BEGIN attach to activity
+	override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+		val pluginBinding = flutterPluginBinding!!
+		val methodChannel = MethodChannel(
+			pluginBinding.binaryMessenger,
+			"me.transang.plugins.facebook_auth/channel"
+		)
+		val callbackManager = CallbackManager.Factory.create()
+		val delegate = FacebookAuthDelegate(binding.activity, callbackManager)
+		methodChannel.setMethodCallHandler(FacebookAuthMethodCallHandler(delegate))
+
+		val onActivityResultListener =
+			PluginRegistry.ActivityResultListener { requestCode, resultCode, data ->
+				callbackManager.onActivityResult(
+					requestCode,
+					resultCode,
+					data
+				)
+			}
+		binding.addActivityResultListener(onActivityResultListener)
+
+		detachFromActivity = {
+			detachFromActivity = null
+			binding.removeActivityResultListener(onActivityResultListener)
+			methodChannel.setMethodCallHandler(null)
+		}
+	}
+
+	override fun onDetachedFromActivity() {
+		detachFromActivity?.invoke()
+	}
+	// END attach to activity
+
+	// BEGIN temporary detach from activity
+	override fun onDetachedFromActivityForConfigChanges() {
+		detachFromActivity?.invoke()
+	}
+
+	override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+		onAttachedToActivity(binding)
+	}
+	// END temporary detach from activity
 }
