@@ -40,8 +40,8 @@ class FacebookAuthDelegate(
 		ret["applicationId"] = accessToken.applicationId
 		ret["lastRefresh"] = accessToken.lastRefresh.time
 		ret["isExpired"] = accessToken.isExpired
-		ret["grantedPermissions"] = accessToken.permissions
-		ret["declinedPermissions"] = accessToken.declinedPermissions
+		ret["grantedPermissions"] = accessToken.permissions.toMutableList()
+		ret["declinedPermissions"] = accessToken.declinedPermissions.toMutableList()
 		ret["dataAccessExpirationTime"] = accessToken.dataAccessExpirationTime.time
 
 		return ret
