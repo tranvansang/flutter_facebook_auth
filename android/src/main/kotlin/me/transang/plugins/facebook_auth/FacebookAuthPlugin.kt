@@ -1,4 +1,4 @@
-package com.example.facebook_auth
+package me.transang.plugins.facebook_auth
 
 import androidx.annotation.NonNull
 
@@ -17,7 +17,7 @@ class FacebookAuthPlugin: FlutterPlugin, MethodCallHandler {
   private lateinit var channel : MethodChannel
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "facebook_auth")
+    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "me.transang.plugins.facebook_auth/channel")
     channel.setMethodCallHandler(this)
   }
 

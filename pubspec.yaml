@@ -35,7 +35,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.example.facebook_auth
+        package: me.transang.plugins.facebook_auth
         pluginClass: FacebookAuthPlugin
       ios:
         pluginClass: FacebookAuthPlugin

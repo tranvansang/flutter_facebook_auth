@@ -3,7 +3,7 @@ import UIKit
 
 public class FacebookAuthPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "facebook_auth", binaryMessenger: registrar.messenger())
+    let channel = FlutterMethodChannel(name: "me.transang.plugins.facebook_auth/channel", binaryMessenger: registrar.messenger())
     let instance = FacebookAuthPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
