@@ -1,6 +1,5 @@
 package me.transang.plugins.facebook_auth
 
-import android.content.Intent
 import com.facebook.CallbackManager
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -36,9 +35,25 @@ class FacebookAuthPlugin : FlutterPlugin, ActivityAware {
 		)
 		val callbackManager = CallbackManager.Factory.create()
 		val delegate = FacebookAuthDelegate(binding.activity, callbackManager)
-		methodChannel.setMethodCallHandler(FacebookAuthMethodCallHandler(delegate))
+		methodChannel.setMethodCallHandler { call, result ->
+			when (call.method) {
+				"login" -> {
+					val permissions: List<String>? = call.argument("permissions")
 
-		val onActivityResultListener =
+					if (permissions == null) result.error(
+						"Error initializing sign in",
+						"permissions is required",
+						null
+					)
+					else delegate.login(permissions, result)
+				}
+
+				"logout" -> delegate.logout(result)
+				else -> result.notImplemented()
+			}
+		}
+
+		val activityResultListener =
 			PluginRegistry.ActivityResultListener { requestCode, resultCode, data ->
 				callbackManager.onActivityResult(
 					requestCode,
@@ -46,11 +61,11 @@ class FacebookAuthPlugin : FlutterPlugin, ActivityAware {
 					data
 				)
 			}
-		binding.addActivityResultListener(onActivityResultListener)
+		binding.addActivityResultListener(activityResultListener)
 
 		detachFromActivity = {
 			detachFromActivity = null
-			binding.removeActivityResultListener(onActivityResultListener)
+			binding.removeActivityResultListener(activityResultListener)
 			methodChannel.setMethodCallHandler(null)
 		}
 	}

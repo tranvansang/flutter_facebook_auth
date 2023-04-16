@@ -11,7 +11,7 @@ import io.flutter.plugin.common.MethodChannel
 
 class FacebookAuthDelegate(
 	private val activity: Activity,
-	private val callbackManager: CallbackManager
+	callbackManager: CallbackManager
 ) {
 	private val loginManager = LoginManager.getInstance()
 	private var resultConsumer: ResultConsumer<Any>? = null
