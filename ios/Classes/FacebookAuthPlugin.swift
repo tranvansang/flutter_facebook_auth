@@ -20,7 +20,11 @@ public class FacebookAuthPlugin: NSObject, FlutterPlugin {
 		switch call.method {
 			
 		case "login":
-			delegate.login(permissions: args?["permissions"] as! [String], result: result)
+			let permissions = args?["permissions"] as! [String]?
+			guard (permissions != nil) else {
+				return result(FlutterError(code: ERR_PARAM_REQUIRED, message: "permissions is required", details: nil))
+			}
+			delegate.login(permissions: permissions!, result: result)
 			break
 		case "logout":
 			delegate.logout(result: result)
