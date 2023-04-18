@@ -16,6 +16,10 @@ class FacebookAuthDelegate(
 	private val loginManager = LoginManager.getInstance()
 
 	companion object {
+		const val ERR_PARAM_REQUIRED = "PARAM_REQUIRED"
+		const val ERR_META_OPERATION_IN_PROGRESS = "META_OPERATION_IN_PROGRESS"
+		const val ERR_OTHER = "OTHER"
+
 		const val ERR_USER_CANCELLED = "USER_CANCELLED"
 		const val ERR_OPERATION_FAIL = "OPERATION_FAIL"
 	}

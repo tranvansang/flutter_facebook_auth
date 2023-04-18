@@ -6,6 +6,8 @@ import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
+import me.transang.plugins.facebook_auth.FacebookAuthDelegate.Companion.ERR_OTHER
+import me.transang.plugins.facebook_auth.FacebookAuthDelegate.Companion.ERR_PARAM_REQUIRED
 
 class FacebookAuthPlugin : FlutterPlugin, ActivityAware {
 	private var detachFromEngine: (() -> Unit)? = null
@@ -36,20 +38,24 @@ class FacebookAuthPlugin : FlutterPlugin, ActivityAware {
 		val callbackManager = CallbackManager.Factory.create()
 		val delegate = FacebookAuthDelegate(binding.activity, callbackManager)
 		methodChannel.setMethodCallHandler { call, result ->
-			when (call.method) {
-				"login" -> {
-					val permissions: List<String>? = call.argument("permissions")
+			try {
+				when (call.method) {
+					"login" -> {
+						val permissions: List<String>? = call.argument("permissions")
 
-					if (permissions == null) result.error(
-						"Error initializing sign in",
-						"permissions is required",
-						null
-					)
-					else delegate.login(permissions, result)
+						if (permissions == null) result.error(
+							ERR_PARAM_REQUIRED,
+							"permissions is required",
+							null
+						)
+						else delegate.login(permissions, result)
+					}
+
+					"logout" -> delegate.logout(result)
+					else -> result.notImplemented()
 				}
-
-				"logout" -> delegate.logout(result)
-				else -> result.notImplemented()
+			} catch (e: Exception) {
+				result.error(ERR_OTHER, e.message, e)
 			}
 		}
 
