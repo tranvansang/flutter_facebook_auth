@@ -4,9 +4,6 @@ import UIKit
 import FBSDKCoreKit
 
 public class FacebookAuthPlugin: NSObject, FlutterPlugin {
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    result("iOS " + UIDevice.current.systemVersion)
-  }
 	let delegate = FacebookAuthDelegate()
 
 	public static func register(with registrar: FlutterPluginRegistrar) {
@@ -23,7 +20,7 @@ public class FacebookAuthPlugin: NSObject, FlutterPlugin {
 		switch call.method {
 
 		case "login":
-            delegate.login(permissions: args?["permissions"] as! [String], result: result)
+			delegate.login(permissions: args?["permissions"] as! [String], result: result)
 			break
 		case "logout":
 			delegate.logout(result: result)
