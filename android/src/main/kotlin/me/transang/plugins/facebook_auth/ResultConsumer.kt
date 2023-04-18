@@ -1,37 +1,27 @@
 package me.transang.plugins.facebook_auth
 
-import android.content.IntentSender.SendIntentException
 import io.flutter.plugin.common.MethodChannel
 
-class ResultConsumer<T>(
-	private val result: MethodChannel.Result,
-	private val onDone: () -> Unit
-) {
-	private var isDone = false
-	fun throwError(e: Exception?) {
-		if (isDone) throw Exception("ResultConsumer is already done")
-		end()
-		when (e) {
-			is SendIntentException -> {
-				result.error("FAIL_TO_SEND_INTENT", e.message, e)
-			}
-			null -> result.error(
-				"NO_DATA",
-				"No data provided",
-				null
-			)
-			else -> result.error("OTHER", e.message, e)
+open class ResultConsumer {
+	private var result: MethodChannel.Result? = null
+	protected fun setup(newResult: MethodChannel.Result): Boolean {
+		if (result != null) {
+			newResult.error("ALREADY_IN_PROGRESS", "Operation in progress", null)
+			return false
 		}
+		result = newResult
+		return true
 	}
 
-	fun consume(value: T) {
-		if (isDone) throw Exception("ResultConsumer is already done")
-		end()
-		result.success(value)
+	protected fun throwError(code: String, message: String?, details: Any?) {
+		if (result == null) throw Exception("Operation is already done")
+		result!!.error(code, message, details)
+		result = null
 	}
 
-	private fun end() {
-		isDone = true
-		onDone()
+	protected fun returnResult(value: Any) {
+		if (result == null) throw Exception("Operation is already done")
+		result!!.success(value)
+		result = null
 	}
 }

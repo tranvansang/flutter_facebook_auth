@@ -12,22 +12,26 @@ import io.flutter.plugin.common.MethodChannel
 class FacebookAuthDelegate(
 	private val activity: Activity,
 	callbackManager: CallbackManager
-) {
+) : ResultConsumer() {
 	private val loginManager = LoginManager.getInstance()
-	private var resultConsumer: ResultConsumer<Any>? = null
+
+	companion object {
+		const val ERR_USER_CANCELLED = "USER_CANCELLED"
+		const val ERR_OPERATION_FAIL = "OPERATION_FAIL"
+	}
 
 	init {
 		loginManager.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
 			override fun onCancel() {
-				resultConsumer?.throwError(Exception("User cancelled the operation"))
+				throwError(ERR_USER_CANCELLED, "User cancelled", null)
 			}
 
 			override fun onError(error: FacebookException) {
-				resultConsumer?.throwError(error)
+				throwError(ERR_OPERATION_FAIL, error.message, error)
 			}
 
 			override fun onSuccess(result: LoginResult) {
-				resultConsumer?.consume(resultFromAccessToken(result.accessToken))
+				returnResult(resultFromAccessToken(result.accessToken))
 			}
 		})
 	}
@@ -47,19 +51,12 @@ class FacebookAuthDelegate(
 		return ret
 	}
 
-	private fun setup(result: MethodChannel.Result) {
-		if (resultConsumer != null) {
-			resultConsumer?.throwError(Exception("New operation arrived before the current one finished"))
-		}
-		resultConsumer = ResultConsumer(result) { resultConsumer = null }
-	}
-
 	fun login(permissions: List<String>, result: MethodChannel.Result) {
-		setup(result)
+		if (!setup(result)) return
 
 		val accessToken = AccessToken.getCurrentAccessToken()
 		if (accessToken != null) {
-			resultConsumer?.consume(resultFromAccessToken(accessToken))
+			returnResult(resultFromAccessToken(accessToken))
 			return
 		}
 
@@ -67,13 +64,13 @@ class FacebookAuthDelegate(
 	}
 
 	fun logout(result: MethodChannel.Result) {
-		setup(result)
+		if (!setup(result)) return
 
 		val hasPreviousSession = AccessToken.getCurrentAccessToken() != null
 		if (hasPreviousSession) {
 			loginManager.logOut()
 		}
 
-		resultConsumer?.consume(true)
+		returnResult(true)
 	}
 }
