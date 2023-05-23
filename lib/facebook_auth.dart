@@ -19,9 +19,9 @@ class FacebookAuth {
   ///  'dataAccessExpirationTime': int // timeIntervalSince1970 * 1000
   /// }
   Future<Map<String, dynamic>> login(List<String> permissions) async {
-    return await methodChannel.invokeMethod('login', {
+    return Map<String, dynamic>.from(await methodChannel.invokeMethod('login', {
       'permissions': permissions,
-    });
+    }));
   }
 
   Future<void> logout() async {
