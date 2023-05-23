@@ -113,7 +113,7 @@ try {
 # SDK versions
 - Android
 ```
-    implementation 'pkg:maven/com.facebook.android/facebook-login@16.0.1'
+    implementation 'com.facebook.android/facebook-login:16.0.1'
 //    implementation 'com.facebook.android:facebook-login:latest.release'
 ```
 
