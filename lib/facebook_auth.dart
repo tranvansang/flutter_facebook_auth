@@ -7,7 +7,18 @@ class FacebookAuth {
   static final _instance = FacebookAuth._internal();
   factory FacebookAuth() => _instance;
 
-  Future<dynamic> login(List<String> permissions) async {
+  /// @return {
+  ///  'token': String
+  ///  'userId': String
+  ///  'expires': int // timeIntervalSince1970 * 1000
+  ///  'applicationId': String
+  ///  'lastRefresh': int // timeIntervalSince1970 * 1000
+  ///  'isExpired': Boolean
+  ///  'grantedPermissions': List<String>
+  ///  'declinedPermissions': List<String>
+  ///  'dataAccessExpirationTime': int // timeIntervalSince1970 * 1000
+  /// }
+  Future<Map<String, dynamic>> login(List<String> permissions) async {
     return await methodChannel.invokeMethod('login', {
       'permissions': permissions,
     });

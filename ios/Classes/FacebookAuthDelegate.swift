@@ -16,7 +16,7 @@ class FacebookAuthDelegate: NSObject {
 		if let applicationWindow = UIApplication.shared.delegate?.window ?? nil {
 			return applicationWindow
 		}
-		
+
 		if #available(iOS 13.0, *) {
 			if let scene = UIApplication.shared.connectedScenes.first(where: { $0.session.role == .windowApplication }),
 				 let sceneDelegate = scene.delegate as? UIWindowSceneDelegate,
@@ -24,18 +24,18 @@ class FacebookAuthDelegate: NSObject {
 				return window
 			}
 		}
-		
+
 		return nil
 	}
-	
-	
+
+
 	public func login(permissions: [String], result: @escaping Flutter.FlutterResult) {
 		if (!setup(result: result)) {
 			return
 		}
-		
+
 		let viewController: UIViewController = (mainWindow?.rootViewController)!
-		
+
 		loginManager.logIn(permissions: permissions, from: viewController, handler: { [self] (result,error)->Void in
 			guard error == nil else {
 				return finish(code: ERR_OPERATION_FAIL, message: error!.localizedDescription)
@@ -53,22 +53,22 @@ class FacebookAuthDelegate: NSObject {
 		loginManager.logOut()
 		finish(value: true)
 	}
-	
+
 	private func getAccessToken(accessToken: AccessToken) -> [String : Any] {
 		let data = [
 			"token": accessToken.tokenString,
 			"userId": accessToken.userID,
 			"expires": Int64((accessToken.expirationDate.timeIntervalSince1970*1000).rounded()),
-			"lastRefresh":Int64((accessToken.refreshDate.timeIntervalSince1970*1000).rounded()),
-			"applicationId":accessToken.appID,
-			"isExpired":accessToken.isExpired,
-			"grantedPermissions":accessToken.permissions.map {item in item.name},
-			"declinedPermissions":accessToken.declinedPermissions.map {item in item.name},
-			"dataAccessExpirationTime":Int64((accessToken.dataAccessExpirationDate.timeIntervalSince1970*1000).rounded()),
+			"applicationId": accessToken.appID,
+			"lastRefresh": Int64((accessToken.refreshDate.timeIntervalSince1970*1000).rounded()),
+			"isExpired": accessToken.isExpired,
+			"grantedPermissions": accessToken.permissions.map {item in item.name},
+			"declinedPermissions": accessToken.declinedPermissions.map {item in item.name},
+			"dataAccessExpirationTime": Int64((accessToken.dataAccessExpirationDate.timeIntervalSince1970*1000).rounded()),
 		] as [String : Any]
 		return data;
 	}
-	
+
 	// result consumer BEGIN
 	var result: FlutterResult? = nil
 	private func setup(result: @escaping FlutterResult) -> Bool {
