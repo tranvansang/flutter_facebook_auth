@@ -8,6 +8,7 @@ import com.facebook.FacebookException
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import io.flutter.plugin.common.MethodChannel
+import java.util.*
 
 class FacebookAuthDelegate(
 	private val activity: Activity,
@@ -40,7 +41,7 @@ class FacebookAuthDelegate(
 		})
 	}
 
-	fun resultFromAccessToken(accessToken: AccessToken): HashMap<String, Any> {
+	private fun resultFromAccessToken(accessToken: AccessToken): HashMap<String, Any> {
 		val ret = HashMap<String, Any>()
 		ret["token"] = accessToken.token
 		ret["userId"] = accessToken.userId

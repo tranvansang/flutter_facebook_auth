@@ -86,13 +86,13 @@ In `info.plist` add the following:
 {
   'token': String
   'userId': String
-  'expires': int // timeIntervalSince1970 * 1000
+  'expires': int // timeIntervalSince1970 * 1000 (in milisec)
   'applicationId': String
-  'lastRefresh': int // timeIntervalSince1970 * 1000
+  'lastRefresh': int // timeIntervalSince1970 * 1000 (in milisec)
   'isExpired': Boolean
   'grantedPermissions': List<String>
   'declinedPermissions': List<String>
-  'dataAccessExpirationTime': int // timeIntervalSince1970 * 1000
+  'dataAccessExpirationTime': int // timeIntervalSince1970 * 1000 (in milisec)
 }
 ```
 - To logout user: `FacebookAuth().logout(): Future<void>`.
